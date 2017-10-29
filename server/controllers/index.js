@@ -3,6 +3,8 @@ const models = require('../models');
 
 // get the Cat model
 const Cat = models.Cat.CatModel;
+//get the Dog model
+const Dog = models.Dog.dogModel;
 
 // default fake data so that we have something to work with until we make a real Cat
 const defaultData = {
@@ -167,6 +169,33 @@ const setName = (req, res) => {
 };
 
 
+//find all dogs on request
+const readAllDogs = (req,res,callback) => {
+  
+    Dog.find(callback);
+  
+  };
+
+
+//host page 4
+const hostPage4 = (req, res) => {
+
+  const callback = (err, docs) => {
+    if(err) {
+      return res.json({err});
+    }
+
+    return res.render("page4", {dogs: docs});
+
+  }
+
+
+ readAllDogs(req,res,callback);
+};
+
+
+
+
 // function to handle requests search for a name and return the object
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
@@ -247,16 +276,80 @@ const notFound = (req, res) => {
   });
 };
 
+const createDog = (req,res) => {
+
+  //if any of the parameters are missing
+  if(!req.body.firstname||!req.body.lastname||!req.body.breed||!req.body.age)
+  {
+    return res.status(400).json({ error: 'firstname,lastname, breed and age are all required' });
+  }
+  //combine names
+  const name = `${req.body.firstname} ${req.body.lastname}`;
+  //create new dog object with fields
+  const dogData = {
+    name,
+    breed: req.body.breed,
+    age: req.body.age,
+  }
+  //create the dog
+  const newDog = new Dog(dogData);
+  //save the dog and allow it to promise to run some code
+  const saveDogpromise = newDog.save();
+
+  //this code runs after save is complete
+  saveDogpromise.then(() => {
+
+    res.json({name, breed: req.body.breed, age:req.body.age});
+  });
+
+  //if errors, return
+  saveDogpromise.catch((err) => res.join({err}));
+
+};
+
+//increase a searched dog's age 
+const increaseDogage = (req,res) => {
+
+if (!req.body.name) {
+  return res.json({error: "Name is required to perform a search and increase that dog's age"});
+}
+
+return Dog.findByName(req.body.name, (err, doc) => {
+
+  //handle errors
+  if (err) {
+    return res.json({err});
+  }
+
+  //no matches
+  if(!doc) {
+    return res.json({error: "No dogs found"});
+  }
+
+  //if a match, increase its age
+  doc.age++;
+  //save it and make a promise
+  const saveDogageIncreasepromise = doc.save();
+  //if it saves, returns a json with new info
+  saveDogageIncreasepromise.then(() => res.json({name:doc.name, breed:doc.breed, age:doc.age}));
+  //errors
+  saveDogageIncreasepromise.catch(() => res.json({err}));
+});
+
+};
 // export the relevant public controller functions
 module.exports = {
   index: hostIndex,
   page1: hostPage1,
   page2: hostPage2,
   page3: hostPage3,
+  page4: hostPage4,
   readCat,
   getName,
   setName,
   updateLast,
   searchName,
   notFound,
+  createDog,
+  increaseDogage,
 };
