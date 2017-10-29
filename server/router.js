@@ -33,10 +33,10 @@ const router = (app) => {
 
     // When someone POSTS to /updateLast, call controllers.updateLast
   app.post('/updateLast', controllers.updateLast);
-    //when someone POSTS to /createDog, call controllers.createDog
+    // when someone POSTS to /createDog, call controllers.createDog
   app.post('/createDog', controllers.createDog);
-    //when someone POSTS to /increaseDogage, call controllers.increaseDogage
-  app.post("/increaseDogage", controllers.increaseDogage);
+    // when someone POSTS to /increaseDogage, call controllers.increaseDogage
+  app.post('/increaseDogage', controllers.increaseDogage);
 };
 
 // export the router function
